@@ -43,3 +43,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# 🔒 Sensitive files (DO NOT TRACK)
+assets/credentials.json
+lib/methods/
