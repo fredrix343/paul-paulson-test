@@ -16,7 +16,7 @@ class TTSController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    ttsService.initTTS(apiKey: "AIzaSyAFUrdqh73freOpxK5rZewS97ODdfAaQzc");
+    ttsService.initTTS(apiKey: ttsService.apikey);
 
     audioPlayer.onDurationChanged.listen((d) => duration.value = d);
     audioPlayer.onPositionChanged.listen((p) => position.value = p);
