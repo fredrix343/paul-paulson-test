@@ -46,4 +46,4 @@ app.*.map.json
 
 # 🔒 Sensitive files (DO NOT TRACK)
 assets/credentials.json
-lib/methods/
+
