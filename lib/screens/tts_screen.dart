@@ -1,9 +1,8 @@
-import 'package:aiappmaster/controllers/stt_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-// import '../controllers/tts_controller.dart';
+import '../controllers/stt_controller.dart';
 import '../controllers/tts_controller.dart';
-import '../models/message.dart'; // your Message model
+import '../models/message.dart';
 
 class TTSHomePage extends StatelessWidget {
   final TTSController c = Get.find<TTSController>();
@@ -11,35 +10,50 @@ class TTSHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [SizedBox(height: 10), _buildMessageList()]);
+    return SafeArea(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 10),
+
+                _buildMessageList(context, constraints),
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 
-  Widget _buildMessageList() {
+  Widget _buildMessageList(BuildContext context, BoxConstraints constraints) {
     return Obx(
       () => ListView.builder(
         shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         itemCount: con.messages.length,
         reverse: true,
         padding: const EdgeInsets.symmetric(vertical: 10),
         itemBuilder: (context, index) {
           final msg = con.messages[con.messages.length - 1 - index];
+          final isUser = msg.isUser == true;
+          final bgColor =
+              isUser ? const Color(0xff1c2d40) : Colors.grey.shade300;
+          final textColor = isUser ? Colors.white : Colors.black87;
+
           return Align(
-            alignment:
-                msg.isUser == true
-                    ? Alignment.centerRight
-                    : Alignment.centerLeft,
+            alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
             child: Container(
               margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
               constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.7,
+                maxWidth: constraints.maxWidth * 0.75,
               ),
               decoration: BoxDecoration(
-                color:
-                    msg.isUser == true
-                        ? const Color(0xff1c2d40)
-                        : Colors.grey.shade300,
+                color: bgColor,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: RichText(
@@ -47,18 +61,14 @@ class TTSHomePage extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: msg.messageString ?? '',
-                      style: TextStyle(
-                        color:
-                            msg.isUser == true ? Colors.white : Colors.black87,
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(color: textColor, fontSize: 16),
                     ),
-                    if (msg.isUser == false)
+                    if (!isUser)
                       WidgetSpan(
                         alignment: PlaceholderAlignment.middle,
                         child:
                             msg.messageString == "Thinking..."
-                                ? SizedBox()
+                                ? const SizedBox()
                                 : Padding(
                                   padding: const EdgeInsets.only(left: 8),
                                   child: GestureDetector(
@@ -66,7 +76,7 @@ class TTSHomePage extends StatelessWidget {
                                       showDialog(
                                         context: context,
                                         builder:
-                                            (context) => AlertDialog(
+                                            (_) => AlertDialog(
                                               title: const Text("Speak Text"),
                                               content: const Text(
                                                 "Would you like to speak this message?",
@@ -81,15 +91,13 @@ class TTSHomePage extends StatelessWidget {
                                                 ),
                                                 TextButton(
                                                   onPressed: () async {
-                                                    await c.audioPlayer
-                                                        .stop(); // Stop any existing playback
+                                                    await c.audioPlayer.stop();
                                                     c.isPlaying.value = false;
-                                                    c.currentText.value =
-                                                        ""; // Clear old text
+                                                    c.currentText.value = "";
                                                     await c.speak(
                                                       textInput:
                                                           msg.messageString,
-                                                    ); // Speak new message
+                                                    );
                                                     c.isAudio.value = true;
                                                     Navigator.pop(context);
                                                   },
@@ -98,11 +106,10 @@ class TTSHomePage extends StatelessWidget {
                                               ],
                                             ),
                                       );
-                                      // call your TTS logic here
-                                      // e.g. flutterTts.speak(msg.messageString ?? '');
                                     },
                                     child: Row(
-                                      children: [
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: const [
                                         Text(
                                           "Convert to Audio",
                                           style: TextStyle(color: Colors.blue),

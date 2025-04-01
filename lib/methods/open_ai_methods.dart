@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class OpenAIService {
-  final String apiKey = "YOUR-KEY-HERE";
+  final String apiKey = 'YOUR-KEY-HERE';
   final String apiUrl = 'https://api.openai.com/v1/chat/completions';
 
   Future<String> getChatbotResponse(String userInput) async {
